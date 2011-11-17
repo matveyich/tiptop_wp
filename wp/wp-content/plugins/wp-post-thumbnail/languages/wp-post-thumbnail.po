@@ -1,0 +1,142 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Post Thumbnail\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-10-24 23:51+0730\n"
+"PO-Revision-Date: 2008-10-24 23:51+0730\n"
+"Last-Translator: Stanley Yeoh Seng Huat <stanley@seoadsensethemes.com>\n"
+"Language-Team: www.SEOAdsenseThemes.com <stanley@seoadsensethemes.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Language: English\n"
+"X-Poedit-Country: UNITED STATES\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../wp-post-thumbnail/wppt_options.php:77
+msgid "Name"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_options.php:80
+msgid "Description"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_options.php:83
+msgid "Width"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_options.php:86
+msgid "Height"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_options.php:129
+msgid "Set WP Post Thumbnail Defaults"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_options.php:135
+msgid "Remember to save your thumbnail settings if you made any changes"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_options.php:136
+msgid "Saved changes"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_options.php:139
+msgid "Add another thumbnail?"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_options.php:139
+msgid "One less thumbnail please"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_upload.php:51
+msgid "ONLY jpg images under 2MB are accepted for upload"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_upload.php:54
+msgid "Select a .jpg image for upload"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_admin.php:34
+msgid "Uploading, please wait ..."
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_admin.php:40
+msgid "Done! Your image has been uploaded."
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_admin.php:57
+msgid "Crop the image below"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_admin.php:58
+msgid "or choose a new image to crop"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_admin.php:92
+msgid "Loading original image for cropping ..."
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_admin.php:117
+msgid "Choose an image file to upload"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_admin.php:126
+msgid "Select thumbnail"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_admin.php:132
+msgid "and click"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_admin.php:133
+msgid "* Accepts .jpg image files no bigger than 2 MBs"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_repository.php:157
+msgid "thumbnail is not found. Make one"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_repository.php:166
+msgid "Saving"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_repository.php:189
+msgid "Deleting"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_repository.php:204
+msgid "Delete"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_repository.php:208
+msgid "Name and save your thumbnail"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_repository.php:209
+msgid "Thumbnail name"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_repository.php:210
+msgid "Optional but highly recommended to improve search engine ranking"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_repository.php:211
+msgid "Save Thumbnail"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt_repository.php:212
+msgid "Overwrites existing thumbnail"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppostthumbnail.php:26
+msgid "WP Post Thumbnail"
+msgstr ""
+
+#: ../wp-post-thumbnail/wppt.php:164
+#, php-format
+msgid "Unable to create directory %s. Is its parent directory writable by the server?"
+msgstr ""
+

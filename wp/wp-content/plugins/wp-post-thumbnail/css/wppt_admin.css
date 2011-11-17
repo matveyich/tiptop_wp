@@ -1,0 +1,19 @@
+#thumbnail_id_tabs {list-style:none;margin:20px 0 0 10px;padding:0 0 11px 0; color:#b8b8b8;}
+#thumbnail_id_tabs li {display:inline;padding:8px 10px 5px 10px;margin:0 5px 0 0;}
+.selected_thumbnail {border:1px solid #ddd; border-bottom-width:2px; border-bottom-color:#fff; color:#000;}
+
+#savebutton {border:1px solid #ddd; padding:10px;}
+
+#wppt_upload_form {font:11px 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Verdana, sans-serif;}
+
+#wppt_admin_panel {border-top:1px solid #ddd; padding:0; margin-top:-6px;}
+#wppt_thumb_preview {float:left;}
+#wppt_thumb_preview .meta {padding:6px 0 0 0; margin:0 0 8px 0; background:#fff; color:#b8b8b8; font-size:90%;}
+#wppt_thumb_preview .image img {padding:3px; border:1px solid #ddd;}
+#wppt_save_form {width:200px; float:right; background:#fff; margin-top:-1px;border-left:1px solid #ddd; border-bottom:1px solid #ddd; display:block; padding:0 0 6px 12px;}
+#crop_title {width:90%;}
+
+.wppt_custom_fieldset {margin:8px 0 15px 0;border:1px solid #ddd;padding:10px;}
+#wppt-conf-form {}
+#wppt-conf-form .thumbnails {display:block;float:left;width:400px;}
+#wppt-conf-form .actions {display:block;float:right;width:250px;padding:10px;background:#f8f8f8;color:#888;}

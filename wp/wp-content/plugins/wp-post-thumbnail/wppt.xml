@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wp-post-thumbnail>
+	<pft_widescreen>
+		<name>Widescreen</name>
+		<desc>Recent posts</desc>
+		<width>270</width>
+		<height>110</height>
+	</pft_widescreen>
+	<pft_square>
+		<name>Square</name>
+		<desc>Category post and more</desc>
+		<width>150</width>
+		<height>150</height>
+	</pft_square>
+	<pft_rectangle>
+		<name>Rectangle</name>
+		<desc>Latest featured post</desc>
+		<width>390</width>
+		<height>270</height>
+	</pft_rectangle>
+</wp-post-thumbnail>
