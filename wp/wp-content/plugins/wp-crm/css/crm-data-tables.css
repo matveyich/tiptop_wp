@@ -10,16 +10,22 @@
 }
 
  
-td.user_card  div.user_avatar {
+td.wp_crm_user_card  {
+  min-height: 60px;
+  display: block;
+  min-width: 320px;
+}
+
+td.wp_crm_user_card  div.user_avatar {
   float: left;
 }
 
-td.user_card  ul.user_card_data {
+td.wp_crm_user_card  ul.user_card_data {
   float: left;
   margin-left: 10px;
 }
 
-td.user_card  ul li.primary {
+td.wp_crm_user_card  ul li.primary {
   font-size: 1.2em;
   font-weight: bold;
 }
@@ -27,7 +33,9 @@ td.user_card  ul li.primary {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * DataTables features
  */
-
+ 
+ 
+ 
 .dataTables_wrapper {
 	position: relative;
 	min-height: 302px;
@@ -38,7 +46,7 @@ td.user_card  ul li.primary {
 
 .dataTables_processing {
 	position: absolute;
-	top: 50%;
+	top: 150px;
 	left: 50%;
 	width: 250px;
 	height: 30px;

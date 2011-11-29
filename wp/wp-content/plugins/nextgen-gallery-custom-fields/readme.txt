@@ -1,10 +1,10 @@
-=== Plugin Name ===
+=== NextGEN Custom Fields ===
 Contributors: shauno
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=RV9L3YEW67VTU&lc=ZA&item_name=Wordpress%20Plugins&item_number=WPP&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
+Donate link: http://shauno.co.za/donate/
 Tags: nextgen-gallery, nextgen, custom, fields, ngg-custom-fields, nextgen-gallery-custom-fields
 Requires at least: 2.7.1
-Tested up to: 3.0.1
-Stable tag: 1.1.2
+Tested up to: 3.2.1
+Stable tag: 1.2.1
 
 Creates the ability to quickly and easily add custom fields to NextGEN Galleries and Images.
 
@@ -89,9 +89,7 @@ So, if you setup a field called "Awesome field", the code you would add to the g
 
 = Well, what about custom fields for galleries? =
 
-As of version 0.4, the ability to add custom fields to galleries has been added.  There are a couple catches though.  Because NextGEN didn't anticipate this type of thing, this plugin has to use a few cleaver (read: sneaky) tactics.
-The first requirement, is that you have javascript turned on,  If you're not sure what this means, then you most likely wont have to worry about it, as it is normally on by default.
-Secondly, you need have at least 1 image custom field linked to the gallery.  Without an image custom field, the gallery custom field will simpley not show.  Basically it is because NextGEN natively does not provide any where for this plugin to "hook" into to edit the gallery, so it goes in through the image hook.
+As of version 0.4, the ability to add custom fields to galleries has been added. It was a little janky until 1.1.3, where support for new NGG hooks was used making it more 'native'.
 
 = I've done all that, now what? =
 
@@ -108,14 +106,20 @@ Simply enter put the following tag where you want your field to display: `<?php 
 
 * Is the custom field linked to the correct gallery?
 
-* Remember, You HAVE to have at least 1 image custom field added to have gallery custom fields.
-
 * If you have unusual characters in your fields names, it can break the output.  Stick to upper and lower case letters, and numbers to avoid any issues.  As of version 0.5 there is some basic sanitation done to the names of fields and their values, but it is far from perfect.  It should allow characters such as apostrophes well enough though.
 
-= Can I hack / modify / steal the code? =
-Of Course!  If you didn't already know, WordPress encourages use of the GPL licenses.  This means you can pretty much do what you want with this code.  Have a look at file `COPYING` that should have been provided when you downloaded this plugin.  If you cant find the file, have a look at [Offical GNU site](http://www.gnu.org/licenses/licenses.html#GPL) for more info
-
 == Changelog ==
+
+= 1.2.1 =
+* Changed `field_value` column back to TEXT from VARCHAR(255), to allow more than 255 characters saved (thanks to ksemel for the find and bug report)
+
+= 1.2 =
+* Converted table to UTF8. This is much more compatible with internet safe languages.
+* Fixed quotes in field names and values
+
+= 1.1.3 =
+* Made gallery fields not rely on having an image custom field and JavaScript
+* Refactored some code to just clean it up a little
 
 = 1.1.2 =
 * I screwed up the backwards compatibility, sorry.  Use 1.0.2 for < NGG 1.7
@@ -155,3 +159,11 @@ Of Course!  If you didn't already know, WordPress encourages use of the GPL lice
 	
 = 0.1 =
 * Initial release!
+
+== Upgrade Notice ==
+
+= 1.2.1 =
+Fixed field values to allow more than 255 characters.
+
+= 1.2 =
+Fixed quotes in field names and values. Also converted database tables to UTF8. This is much more compatible with internet safe languages. You may see extra backslashes in some values if you had quotes saved before. Just remove them and re-save.

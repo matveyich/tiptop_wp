@@ -173,7 +173,7 @@ jQuery(document).ready(
 	function()
 	{
         jQuery("#previewpic").nggAutocomplete( {
-            type: 'image',domain: "<?php echo home_url(); ?>/"
+            type: 'image',domain: "<?php echo home_url('index.php', is_ssl() ? 'https' : 'http'); ?>"
         });
         
 		jQuery('#selectContainer').sortable( {
@@ -299,7 +299,7 @@ function showDialog() {
 					<input class="button-secondary" type="submit" name="showThickbox" value="<?php esc_attr_e( 'Edit album', 'nggallery'); ?>" onclick="showDialog(); return false;" />
 					<?php } ?>
 					<?php if(nggGallery::current_user_can( 'NextGEN Add/Delete album' )) { ?>
-					<input class="button-secondary action "type="submit" name="delete" value="<?php esc_attr_e('Delete', 'nggallery'); ?>" onclick="javascript:check=confirm('<?php esc_js('Delete album ?','nggallery'); ?>');if(check==false) return false;"/>
+					<input class="button-secondary action "type="submit" name="delete" value="<?php esc_attr_e('Delete', 'nggallery'); ?>" onclick="javascript:check=confirm('<?php echo esc_js('Delete album ?','nggallery'); ?>');if(check==false) return false;"/>
 					<?php } ?>
 				<?php } else { ?>
 					<?php if(nggGallery::current_user_can( 'NextGEN Add/Delete album' )) { ?>
@@ -368,7 +368,7 @@ function showDialog() {
 		</div>
 		
 		<!-- /#target-album -->
-		<div class="widget target-album widget-liquid-left">
+		<div class="widget target-album widget-left">
 
 		<?php
 			if ($this->currentID > 0){			
@@ -400,6 +400,7 @@ function showDialog() {
 	</div><!-- /#container -->
 </div><!-- /#wrap -->
 
+<?php if ($this->currentID > 0) : ?>
 <!-- #editalbum -->
 <div id="editalbum" style="display: none;" >
 	<form id="form-edit-album" method="POST" accept-charset="utf-8">
@@ -461,6 +462,7 @@ function showDialog() {
 	</form>
 </div>
 <!-- /#editalbum -->
+<?php endif; ?>
 
 <?php
 		
@@ -488,6 +490,7 @@ function showDialog() {
 	
 			$obj['id']   = $album->id;
 			$obj['name'] = $obj['title'] = $album->name;
+            $obj['type'] = 'album';
 			$class = 'album_obj';
 
 			// get the post name
@@ -512,6 +515,7 @@ function showDialog() {
 			$obj['id']    = $gallery->gid;
 			$obj['name']  = $gallery->name;
 			$obj['title'] = $gallery->title;
+            $obj['type']  = 'gallery';
 		
 			// get the post name
 			$post = get_post($gallery->pageid);
@@ -541,7 +545,7 @@ function showDialog() {
 							<p><strong>' . __('Name', 'nggallery') . ' : </strong>' . nggGallery::i18n( $obj['name'] ) . '</p>
 							<p><strong>' . __('Title', 'nggallery') . ' : </strong>' . nggGallery::i18n( $obj['title'] ) . '</p>
 							<p><strong>' . __('Page', 'nggallery'). ' : </strong>' . nggGallery::i18n( $obj['pagenname'] ) . '</p>
-							' . apply_filters('ngg_display_album_item_content', '', $obj['id']) . '
+							' . apply_filters('ngg_display_album_item_content', '', $obj) . '
 						</div>
 				</div>
 			   </div>'; 

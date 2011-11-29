@@ -1,6 +1,10 @@
 <?php
 
-  require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
+  if(file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php')) {
+    require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
+  } else {
+    return;
+  }
   
   class WP_CMR_List_Table extends WP_List_Table  {
   
@@ -80,6 +84,7 @@
   <script type="text/javascript">
 
     var wp_list_table;
+    var wp_list_counts = {};
     var wp_table_column_ids = {}
     <?php foreach($this->column_ids as $col_id => $col_slug) { ?>
     wp_table_column_ids['<?php echo $col_slug; ?>'] = '<?php echo $col_id; ?>';
@@ -102,8 +107,7 @@
       "aoColumnDefs": [<?php echo implode(',', $this->aoColumnDefs); ?>],
       "sAjaxSource": ajaxurl + '?&action=<?php echo $this->_args['ajax_action']; ?>',
       "fnServerData": function ( sSource, aoData, fnCallback ) {
-
-        // Build Filters
+      
         aoData.push({
           name: 'wp_crm_filter_vars',
           value: jQuery('#wp-crm-filter').serialize()
@@ -114,12 +118,22 @@
           "type": "POST",
           "url": sSource,
           "data": aoData,
-          "success": fnCallback
+          "success": function(data, textStatus, jqXHR) { 
+            wp_list_counts.user_ids = data.user_ids;
+            fnCallback(data, textStatus, jqXHR); 
+          }
         });
+        
+        
+        
+        
        },
 
       "aoColumns": [<?php echo implode(",", $this->aoColumns); ?>],
-      "fnDrawCallback": function() {wp_list_table_do_columns();}
+      "fnDrawCallback": function(data) {
+        wp_list_table_do_columns();
+                
+      }
     });
 
     jQuery("#wp-crm-filter").submit(function(event) {  
@@ -137,15 +151,17 @@
 
   //** Check which columns are hidden, and hide data table columns */
   function wp_list_table_do_columns() { 
- 
-    jQuery('.hide-column-tog input').each(function() {
-      
-      var col_slug = jQuery(this).val();
-      var checked = (jQuery(this).attr('checked') ? true : false);
 
-      column_id = wp_table_column_ids[col_slug];
-      wp_list_table.fnSetColumnVis( column_id, checked );
+    // Hide any "hidden" columns from table
+    
+    var visible_columns = jQuery('.hide-column-tog').filter(':checked').map(function() { return jQuery(this).val(); });    
+    var hidden_columns = jQuery('.hide-column-tog').filter(':not(:checked)').map(function() { return jQuery(this).val(); });
+      
+    
+    jQuery.each(hidden_columns, function(key, row_class) {    
+      jQuery('#wp-list-table .' + row_class).hide();
     });
+        
  
   }
 
@@ -198,7 +214,7 @@
   /**
    * Get search results based on query.
    *
-   * @todo Needs to be updated to handle the AJAX requests.
+   * @todo user_search() should be removed from here since this is a "general" function
    *
    */
   function prepare_items($wp_crm_search = false) {
@@ -346,14 +362,16 @@
 
       $r .= "<td {$attributes}>";
       $single_cell = $this->single_cell($column_name,$object, $object_id);
- 
 
-      $ajax_cells[] = $single_cell;
+      //** Need to insert some sort of space in there to avoid DataTable error that occures when "null" is returned */
+      $ajax_cells[] = ' ' . $single_cell;
+      
       $r .= $single_cell;
       $r .= "</td>";
     }
-    
+
     $r .= '</tr>';
+
 
     if($this->_args['ajax']) {
       return $ajax_cells;
@@ -368,11 +386,13 @@
    * Keep it simple here.  Mostly to be either replaced by child classes, or hookd into
    *
    */
-  function single_cell($column_name,$object, $object_id) {
+  function single_cell($full_column_name,$object, $object_id) {
     global $wp_crm;
-    
+
     $object = (array) $object;
 
+    $column_name = str_replace('wp_crm_', '', $full_column_name);
+          
     $cell_data = array(
       'table_scope' => $this->_args['table_scope'],
       'column_name' => $column_name,

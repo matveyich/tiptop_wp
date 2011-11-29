@@ -1,4 +1,6 @@
 <?php
+ 
+  
 if(!empty($wp_crm['data_structure']) && is_array($wp_crm['data_structure']['attributes'])) {
     $attribute_keys = array_keys($wp_crm['data_structure']['attributes']);
 } else {
@@ -11,10 +13,9 @@ if(!empty($wp_crm['data_structure']) && is_array($wp_crm['data_structure']['attr
   WP_CRM_F::add_message(__('User updated.'));
 }
 
-if($_REQUEST['user_id'])  {
+if($wp_crm_user)  {
 	$user_id = $_REQUEST['user_id'];
-	$object = wp_crm_get_user($user_id);
-  
+	$object = $wp_crm_user;  
 	$title =  WP_CRM_F::get_primary_display_value($object);
 } else {
 	$object = array();
@@ -35,36 +36,37 @@ if($_REQUEST['user_id'])  {
   
   var wp_crm_hidden_attributes = {<?php 
   $count = 0; $roles = count($wp_crm['hidden_attributes']); if(is_array($wp_crm['hidden_attributes'])) foreach($wp_crm['hidden_attributes']  as $role => $elements): $count++; ?>
- '<?php echo $role; ?>': ['<?php  echo implode("','", $elements); ?>']<?php echo ($count != $roles ? ',' : ''); ?>  
-  <?php endforeach; ?>};
+ '<?php echo $role; ?>': ['<?php  echo implode("','", $elements); ?>']<?php echo ($count != $roles ? ',' : ''); ?>   <?php endforeach; ?>};
 </script>
 
 
-<div class="wrap">
-<?php screen_icon(); ?>
-<h2><?php echo $title; ?></h2>
-<?php WP_CRM_F::print_messages(); ?>
+<div class="wp_crm_profile_wrapper wrap">
+  <div class="wp_crm_ajax_result"></div>
+  <?php screen_icon(); ?>
+  <h2><?php echo $title; ?></h2>
+  <?php WP_CRM_F::print_messages(); ?>
 
-<form name="crm_user" action="admin.php?page=wp_crm_add_new<?php echo ($user_id ? "&user_id=$user_id" : ''); ?>" method="post" id="crm_user">
-<input type="hidden" id="user_id" name="wp_crm[user_data][user_id][0][value]" value="<?php echo $user_id; ?>" />
-<?php
-wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );
-wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
-wp_nonce_field( 'wp_crm_update_user', 'wp_crm_update_user', false );
-?>
+  <form enctype="multipart/form-data"  name="crm_user" action="admin.php?page=wp_crm_add_new<?php echo ($user_id ? "&user_id=$user_id" : ''); ?>" method="post" id="crm_user">
+  <input type="hidden" id="user_id" name="wp_crm[user_data][user_id][0][value]" value="<?php echo $user_id; ?>" />
+  <?php
+  wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );
+  wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
+  wp_nonce_field( 'wp_crm_update_user', 'wp_crm_update_user', false );
+  ?>
 
-<div id="poststuff"  class="metabox-holder<?php echo 2 == $screen_layout_columns ? ' has-right-sidebar' : ''; ?>">
-<div id="side-info-column" class="inner-sidebar">
-	<?php $side_meta_boxes = do_meta_boxes($current_screen->id, 'side', $object); ?>
-</div>
+  <div id="poststuff"  class="metabox-holder<?php echo 2 == $screen_layout_columns ? ' has-right-sidebar' : ''; ?>">
+  <div id="side-info-column" class="inner-sidebar">
+    <?php $side_meta_boxes = do_meta_boxes($current_screen->id, 'side', $object); ?>
+  </div>
 
-<div id="post-body">
-<div id="post-body-content">	
-<?php do_meta_boxes($current_screen->id, 'normal', $object); ?>
-<?php do_meta_boxes($current_screen->id, 'advanced', $object); ?>
-</div>
-</div>
-<br class="clear" />
-</div><!-- /poststuff -->
-</form>
+  <div id="post-body">
+  <div id="post-body-content">	
+  <div class="wp_crm_secondary_ajax_result"></div>
+  <?php do_meta_boxes($current_screen->id, 'normal', $object); ?>
+  <?php do_meta_boxes($current_screen->id, 'advanced', $object); ?>
+  </div>
+  </div>
+  <br class="clear" />
+  </div><!-- /poststuff -->
+  </form>
 </div>

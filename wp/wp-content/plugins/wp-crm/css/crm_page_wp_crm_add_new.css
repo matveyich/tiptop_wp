@@ -1,5 +1,153 @@
 @import url("wp_crm_global.css");
 
+.wp_crm_secondary_ajax_result .wpc_action_wrapper {
+    background: none repeat scroll 0 0 #BBCCFF;
+    clear: both;
+    margin-bottom: 25px;
+    position: relative;
+    top: 10px;
+}
+
+.wp_crm_secondary_ajax_result .wpc_action_wrapper .wpc_action_fields {
+  padding: 12px 16px 6px;
+}
+
+.wp_crm_secondary_ajax_result .wpc_action_wrapper .wpc_action_fields input[type=text] {
+    background: none repeat scroll 0 0 #EEF2FF;
+    border: 1px solid #A1A6CC;
+    border-radius: 4px 4px 4px 4px;
+    padding: 1px 4px;
+}
+
+.wp_crm_secondary_ajax_result .wpc_action_wrapper .wpc_action_fields input[type=text].small_field  {
+  width: 50px;
+}
+
+.wp_crm_secondary_ajax_result .wpc_action_wrapper .wpc_actions{
+   background: none repeat scroll 0 0 #ADBEEF;
+    padding: 9px 0 8px 10px;
+}
+
+.ui-datepicker  {
+    background: none repeat scroll 0 0 #F2F2F2;
+    border: 1px solid #C4C4C4;
+    box-shadow: 1px 2px 6px #A9A9A9;
+    margin-top: 4px;
+ 
+}
+.ui-datepicker  .ui-datepicker-header  {
+    background: none repeat scroll 0 0 #E6E6E6;
+    padding: 7px;
+}
+.ui-datepicker  .ui-datepicker-calendar  {
+  padding: 7px;
+}
+.ui-datepicker  .ui-datepicker-calendar  td {
+  padding: 2px 6px;
+}
+
+.ui-datepicker  .ui-datepicker-prev, 
+.ui-datepicker  .ui-datepicker-next  {
+  background: none repeat scroll 0 0 #D7D7D7;
+  color: #414141;
+  font-size: 0.9em;
+  margin-top: 3px;
+  padding: 3px 5px;
+  cursor: pointer;
+}
+
+
+.ui-datepicker  .ui-datepicker-prev  {
+  float: left;
+}
+
+.ui-datepicker  .ui-datepicker-next  {
+  float: right;
+
+}
+.ui-datepicker  .ui-datepicker-title  {
+  text-align: center;
+}
+.ui-datepicker  .ui-datepicker-title  select {
+  padding:2px;
+}
+
+ 
+
+.wp_crm_attribute_uneditable textarea,
+.wp_crm_attribute_uneditable input {
+  border-style:none !important;
+  background: transparent !important;
+}
+
+.uploadifyQueue {
+  margin-top: 10px;
+}
+
+.uploadifyQueueItem {
+  background: none repeat scroll 0 0 #E4E4E4;
+  border: 1px solid #BABABA;
+  margin-top: 3px;
+}
+
+.uploadifyQueueItem div.cancel{
+    float: left;
+    margin: 3px 6px 0 1px;
+}
+
+input.regular-text.wp_crm_input_error {
+  background: none repeat scroll 0 0 #FCF2DB;
+  border: 1px solid #9C3E3E !important; 
+}
+
+select.wp_crm_input_error {
+  background: none repeat scroll 0 0 #FCF2DB;
+  border: 1px solid #9C3E3E !important; 
+}
+
+div.wp_crm_description {
+  color: #989898;
+  font-weight: normal;
+  padding-top: 5px;
+}
+
+.wp-tab-panel {
+  height: auto;
+  max-height: 200px;
+}
+
+.wp-tab-panel-nav {
+ margin-bottom: 3px;
+  margin-top: 12px;
+}
+.wp-tab-panel-nav li {
+  display: inline;
+  line-height: 1.35em;
+  border-radius: 3px 3px 0 0;
+  padding: 5px;
+}
+
+
+.wp-tab-panel-nav li.tabs a {
+  color: #333333;
+     text-decoration: none;
+}
+.wp-tab-panel-nav li.tabs {
+  border-color: #DFDFDF;
+  border-style: solid solid none;
+  border-width: 1px 1px 0;
+  margin-bottom: 6px;
+  background-color: #FFFFFF;
+}
+
+#primary_information .wp-tab-panel {
+  width: 90%;
+  background: #F8F8F8;
+  padding:0;
+}
+#primary_information .wp-tab-panel ul.wp_crm_checkbox_list {
+  padding: 10px;
+}
 body.crm_page_wp_crm_add_new  #user_activity_history.postbox .inside,
 body.crm_page_wp_crm_add_new  #primary_information.postbox .inside {
   padding: 0;
@@ -31,11 +179,16 @@ body.crm_page_wp_crm_add_new  input.regular-text {
 }
 
 
+.wp_crm_activity_single .entry_type,
 .wp_crm_activity_single .by_user,
 .wp_crm_activity_single .timestamp {
      color: #939393;
     font-size: 11px;
     margin-top: 5px;
+}
+
+.wp_crm_activity_single td.right p.wp_crm_entry_content  {
+  padding-right: 10px;
 }
 
 .wp_crm_activity_single .truncated {
@@ -61,14 +214,14 @@ body.crm_page_wp_crm_add_new  input.regular-text {
 @import url("jquery-ui-1.8.11.custom.css");
 
 .wp_crm_new_message_options_line {
-    border-top: 1px solid #E8E8E8;
+    border-top: 1px solid #DCDCDC;
     margin-top: 7px;
     overflow: auto;
     padding-top: 5px;
  }
  
  .wp_crm_show_message_options{
-  color: #9A9A9A;
+  color: #000;
   cursor: pointer;
  }
  
@@ -82,7 +235,7 @@ body.crm_page_wp_crm_add_new  input.regular-text {
   
 }
 .wp_crm_new_message {
-  background: none repeat scroll 0 0 #F5F5F5;
+  background: none repeat scroll 0 0 #EEEEEE;
   padding: 10px;
 }
 
@@ -155,10 +308,12 @@ body.crm_page_wp_crm_add_new  input.regular-text {
 .crm_page_wp_crm_add_new ul.ui-autocomplete .ui-menu-item a.ui-corner-all {
 
 }
-/* Autocomplete */
+
 .input_div textarea {
-  width: 99%;
+  width: 90%;
   padding: 5px;
+  min-height: 95px;
+  
 }
 
 .wp_crm_user_entry_row input.regular-text {
@@ -222,7 +377,7 @@ tr.wp_crm_user_entry_row.primary:last-child  {
 
 tr.wp_crm_user_entry_row.primary input.regular-text{
 	font-size: 1.3em;
-  width: 320px;
+  width: 90%;
   border: 1px solid #CFCFCF;
 
 }

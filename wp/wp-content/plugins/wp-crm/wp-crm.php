@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: WP-CRM - Customer Relationship Management
-Plugin URI: http://twincitiestech.com/plugins/
+Plugin URI: http://usabilitydynamics.com/products/wp-crm/
 Description: Integrated Customer Relationship Management for WordPress. 
 Author: Usability Dynamics, Inc.
-Version: 0.13
-Author URI: http://twincitiestech.com
+Version: 0.21
+Author URI: http://usabilitydynamics.com
 
-Copyright 2010  Usability Dynamics, Inc.    (email : andy.potanin@twincitiestech.com)
+Copyright 2011  Usability Dynamics, Inc.    (email : andy.potanin@twincitiestech.com)
 
 Created by Usability Dynamics, Inc (website: twincitiestech.com       email : support@twincitiestech.com)
 
@@ -24,7 +24,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
+
+/** Plugin Version */
+define('WP_CRM_Version', '0.21');
 
 /** Path for Includes */
 define('WP_CRM_Path', WP_PLUGIN_DIR . '/wp-crm');
@@ -34,9 +36,6 @@ define('WP_CRM_Templates', WP_CRM_Path . '/templates');
 
 /** Path for front-end links */
 define('WP_CRM_URL', WP_PLUGIN_URL . '/wp-crm');
-
-/** Plugin Version */
-define('WP_CRM_Version', '0.13');
 
 /** Directory path for include_onces of template files  */
 define('WP_CRM_Premium', WP_PLUGIN_DIR . '/wp-crm/core/premium');
@@ -77,5 +76,5 @@ register_activation_hook(__FILE__,array('WP_CRM_F', 'activation'));
 register_deactivation_hook(__FILE__,array('WP_CRM_F', 'deactivation'));
 			
 // Initiate the plugin
-add_action("after_setup_theme", create_function('', 'new WP_CRM_Core;'));
+add_action("plugins_loaded", create_function('', 'new WP_CRM_Core;'));
 

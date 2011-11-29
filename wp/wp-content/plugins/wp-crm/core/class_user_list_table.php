@@ -60,6 +60,51 @@ class CRM_User_List_Table extends WP_CMR_List_Table {
   }
 
 
+  /**
+   * Get search results based on query.
+   *
+   * @todo Needs to be updated to handle the AJAX requests.
+   *
+   */
+  function prepare_items($wp_crm_search = false) {
+    global $role, $usersearch;
+
+    if(!isset($this->all_items)) {
+      $this->all_items = WP_CRM_F::user_search( $wp_crm_search);
+    }
+
+    //** Get User IDs */
+    foreach($this->all_items as $object) {
+      $this->user_ids[] = $object->ID;
+    }
+
+     //** Do pagination  */
+
+
+    if($this->_args['per_page'] != -1) {
+      $this->item_pages = array_chunk($this->all_items, $this->_args['per_page']);
+
+      $total_chunks = count($this->item_pages);
+
+      //** figure out what page chunk we are on based on iDisplayStart
+      $this_chunk = ($this->_args['iDisplayStart'] / $this->_args['per_page']);
+
+      //** Get page items */
+      $this->items = $this->item_pages[$this_chunk];
+
+      if(is_array($this->items)) {
+        foreach($this->items as $object) {
+          $this->page_user_ids[] = $object->ID;
+        }
+      }
+
+    } else {
+      $this->items = $this->all_items;
+    }
+
+
+  }
+
 
   /**
    * Display the search box.
@@ -162,7 +207,8 @@ class CRM_User_List_Table extends WP_CMR_List_Table {
       $r .= "<td {$attributes}>";
       $single_cell = $this->single_cell($column_name,$user_object, $user_id);
 
-      $ajax_cells[] = $single_cell;
+      //** Need to insert some sort of space in there to avoid DataTable error that occures when "null" is returned */
+      $ajax_cells[] = ' ' . $single_cell;
       $r .= $single_cell;
       $r .= "</td>";
 
@@ -178,8 +224,10 @@ class CRM_User_List_Table extends WP_CMR_List_Table {
     return $r;
     }
 
-    function single_cell($column_name,$user_object, $user_id) {
+    function single_cell($full_column_name,$user_object, $user_id) {
     global $wp_crm;
+
+      $column_name = str_replace('wp_crm_', '', $full_column_name);
 
       switch ( $column_name ) {
 
@@ -189,55 +237,7 @@ class CRM_User_List_Table extends WP_CMR_List_Table {
 
         case 'user_card':
 
-
-          ob_start();
-          ?>
-
-            <div class='user_avatar'>
-              <a href='<?php echo admin_url("admin.php?page=wp_crm_add_new&user_id=$user_id"); ?>'><?php echo  get_avatar( $user_id, 50 ); ?></a>
-            </div>
-            <ul class="user_card_data">
-              <li class='primary'>
-              <a href='<?php echo  admin_url("admin.php?page=wp_crm_add_new&user_id=$user_id"); ?>'>
-              <?php echo WP_CRM_F::get_primary_display_value($user_object); ?></a>
-              </li>
-              <?php foreach($wp_crm['configuration']['overview_table_options']['main_view'] as $key) { ?>
-                <li class="<?php echo $key; ?>">
-                  <?php
- 
-                    unset($visible_options);
-
-                    if($wp_crm['data_structure']['attributes'][$key]['has_options']) {
-                      $visible_options = WP_CRM_F::list_options($user_object, $key);
-                    } else {
-                      
-                      $visible_options[] = apply_filters('wp_crm_display_' . $key, WP_CRM_F::get_first_value($user_object[$key]),$user_id, $user_object,  'user_card');
-                    }              
-
-                    if(is_array($visible_options)) {
-                      foreach($visible_options as $this_key => $option) {
-                        if(CRM_UD_F::is_url($option)) {
-                          $visible_options[$this_key] = "<a href='$option'>$option</a>";
-                        }
-                      }
-                    }
-
-                     if(is_array($visible_options)) {
-                      echo '<ul><li>' . implode('</li><li>', $visible_options) . '</li></ul>';
-                    }
-
-
-
-                  ?></li>
-              <?php } ?>
-            </ul>
-
-          <?php
-
-          $content = ob_get_contents();
-          ob_end_clean();
-          $r .= $content;
-
+          $r .= WP_CRM_F::render_user_card(array('user_id' => $user_id, 'user_object' => $user_object, 'full_column_name' => $full_column_name));
 
         break;
 
@@ -264,7 +264,7 @@ class CRM_User_List_Table extends WP_CMR_List_Table {
             if($wp_crm['data_structure']['attributes'][$column_name]['has_options']) {
 
               //** Get label and only show when enabled */
-              $visible_options = nl2br(WP_CRM_F::list_options($user_object, $column_name));
+              $visible_options = WP_CRM_F::list_options($user_object, $column_name);
 
             } else {
               //** Regular value, no need to get option title */
@@ -276,8 +276,14 @@ class CRM_User_List_Table extends WP_CMR_List_Table {
         }
 
           if(is_array($visible_options)) {
+            foreach($visible_options as $key => $single_value) {
+              $visible_options[$key] = nl2br($single_value);
+            }
             $r .= '<ul><li>' . implode('</li><li>', $visible_options) . '</li></ul>';
           }
+          
+          $r = apply_filters('wp_crm_overview_cell', $r, array('column_name' => $column_name, 'user_object' => $user_object, 'user_id' => $user_id));
+          
 
         break;
       }
@@ -308,11 +314,11 @@ class CRM_User_List_Table extends WP_CMR_List_Table {
         }
 
         echo "<ul class='wp_crm_overview_filters'>\n";
-        echo '<li class="wpp_crm_filter_section_title">Role Lists</li>';
+        echo "<li class='wpp_crm_filter_section_title'>Role Lists<a class='wpp_crm_filter_show'>".__('Show', 'wp_crm')."</a></li>";
 
         if(is_array($views)) {
             foreach ( $views as $class => $view ) {
-                $views[ $class ] = "\t<li class='$class'>$view";
+                $views[ $class ] = "\t<li class='$class wp_crm_checkbox_filter'>$view";
             }
         }
 
@@ -322,7 +328,7 @@ class CRM_User_List_Table extends WP_CMR_List_Table {
         //** Get all fiterable keys - for now just checkboxes */
         if(!empty($wp_crm['data_structure']) && is_array($wp_crm['data_structure']['attributes'])) {
           foreach($wp_crm['data_structure']['attributes'] as $meta_key => $meta_data) {
-            if($meta_data['input_type'] == 'checkbox') {
+            if($meta_data['input_type'] == 'checkbox' || $meta_data['input_type'] == 'dropdown') {
                 $filterable_keys[$meta_key] = $meta_data;
             }
           }

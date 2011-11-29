@@ -1,3 +1,5 @@
+var wpp_crm_form_stop = false;
+
 jQuery(document).bind('wp_crm_value_changed', function(event, data) {
 
   var object = data.object;
@@ -14,14 +16,32 @@ jQuery(document).bind('wp_crm_value_changed', function(event, data) {
   }
   
 });
-
+ 
 
 jQuery(document).ready(function() {
  
-  //** Verify deletion saving */
-  jQuery('.submitdelete').click(function() {
+  jQuery('.wp_crm_attribute_uneditable').each(function() {
   
+    jQuery('input, textarea, select', this).attr('disabled', true);
+  
+  });
+ 
+ 
+    jQuery('ul.wp-tab-panel-nav  a').click(function(){
     
+    var panel_wrapper = jQuery(this).parents('.wp-tab-panel-wrapper');
+    
+    var t = jQuery(this).attr('href');
+    jQuery(this).parent().addClass('tabs').siblings('li').removeClass('tabs');
+    jQuery('.wp-tab-panel', panel_wrapper).hide();
+    jQuery(t, panel_wrapper).show();
+ 
+    return false;
+  });
+  
+ 
+  //** Verify deletion saving */
+  jQuery('.submitdelete').click(function() {    
     return confirm('Are you sure you want to delete user?');
   });
   
@@ -89,7 +109,7 @@ jQuery(document).ready(function() {
   });
 
   
-  jQuery("#wp_crm_user_role").change(function() {
+  jQuery("#wp_crm_role").change(function() {
   
     jQuery(".wp_crm_user_entry_row").show();
     
@@ -121,11 +141,14 @@ jQuery(document).ready(function() {
       }, function(response) {
 
         if(response.success == 'true') {
+          jQuery('#wp_crm_user_activity_stream').slideUp('fast');
           wp_crm_update_activity_stream();
           
           // Clear out message
           jQuery('#wp_crm_message_content').val('');
-          jQuery('.wp_crm_new_message').hide();
+          
+          jQuery('.wp_crm_new_message').slideUp('fast');
+          
           
         } else {
 
@@ -202,8 +225,43 @@ jQuery(document).ready(function() {
       jQuery('.add_another', parent_row).hide();
     }
   });
+ 
+  
 });
 
+  /**
+   * Looks through all input fields and generates new random keys (should be done after new elements are added to DOM
+   *
+   *
+   */
+  function wp_crm_refresh_random_keys(element) {  
+  
+  
+    
+      if(jQuery(element).attr("random_hash")) {
+      
+        var old_hash = jQuery(element).attr("random_hash");
+      
+        var new_hash = Math.floor(Math.random()*10000000);
+        
+        var current_html = jQuery(element).html();
+        
+        console.log(current_html);
+        
+        old_hash = new RegExp(old_hash, 'gi');
+        
+        var new_html = current_html.replace(old_hash,new_hash); 
+        
+        jQuery(element).html(new_html);
+       
+        
+        jQuery(element).attr("random_hash", new_hash);
+        
+      }
+ 
+  }
+  
+  
   /**
    * Contact history and messages for a user
    *
@@ -215,17 +273,48 @@ jQuery(document).ready(function() {
  
     jQuery.post(ajaxurl, {action: 'wp_crm_get_user_activity_stream', user_id: user_id}, function(response) {
       jQuery("#wp_crm_user_activity_stream tbody").html(response);
+      jQuery('#wp_crm_user_activity_stream').slideDown("fast");
     });
 
   }
 
   /**
-   * Contact history and messages for a user
+   * Function ran before form is saved.
    *
    *
    */
   function wp_crm_save_user_form(form) {
-  
+
+    var form = jQuery("#crm_user");
+    var stop_form = false;
+
+    jQuery("*", form).removeClass("wp_crm_input_error");
+
+    /* Cycle Through all Requires fields */
+    jQuery(".wp_crm_attribute_required", form).each(function()  {
+
+      var meta_key = jQuery(this).attr('meta_key');
+      var input_type = jQuery(this).attr('wp_crm_input_type');
+
+      if(input_type == 'text' && jQuery("input.regular-text:first", this).val() == '') {
+        jQuery("input.regular-text:first", this).addClass('wp_crm_input_error');
+        jQuery("input.regular-text:first", this).focus();
+        stop_form = true;
+      }
+      
+      if(input_type == 'dropdown' && jQuery("select:first", this).val() == '') {
+        jQuery("select:first", this).addClass('wp_crm_input_error');
+        jQuery("select:first", this).focus();
+        stop_form = true;
+      }
+
+    });
+    
+    if(stop_form) {
+      return false;
+    }
+
+
     var password_1 = jQuery("#wp_crm_password_1").val();
     var password_2 = jQuery("#wp_crm_password_2").val();
     
@@ -236,8 +325,14 @@ jQuery(document).ready(function() {
         jQuery(".wp_crm_advanced_user_actions").show();
         jQuery("#wp_crm_password_1").focus();
         return false;
-      }
+      }    
+    } 
+ 
+    jQuery(document).trigger('wp_crm_user_profile_save', {object: this, action: 'option_mousedown'});
     
+    if(wpp_crm_form_stop) {
+      return false;
     }
+    
     return true;
   }

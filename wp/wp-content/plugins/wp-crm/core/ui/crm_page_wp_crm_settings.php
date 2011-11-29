@@ -24,12 +24,33 @@ if(empty($wp_crm['data_structure']['attributes'])) {
   $wp_crm['data_structure']['attributes'] = array('user_email' => array('title' => 'Email', 'primary' => 'true'));
 }
 
+  $parseUrl = parse_url(trim(get_bloginfo('url')));
+  $this_domain = trim($parseUrl['host'] ? $parseUrl['host'] : array_shift(explode('/', $parseUrl['path'], 2)));
+ 
+
 ?>
 
  <script type="text/javascript">
   jQuery(document).ready(function() {
     jQuery("#wp_crm_settings_tabs").tabs({ cookie: { expires: 30 } });
+    
+    // Check plugin updates
+    jQuery("#wp_crm_ajax_check_plugin_updates").click(function() {
+
+      jQuery('.plugin_status').remove();
+
+      jQuery.post(ajaxurl, {
+          action: 'wp_crm_check_plugin_updates'
+          }, function(data) {
+
+          message = "<div class='plugin_status updated fade'><p>" + data + "</p></div>";
+          jQuery(message).insertAfter("h2");
+        });
+    });  
+  
   });
+  
+  
  </script>
 
 <div class="wrap">
@@ -78,8 +99,25 @@ if(empty($wp_crm['data_structure']['attributes'])) {
     <table class="form-table">
     <tr>
       <th>
+        <?php _e('Primary User Identifier','wp_crm'); ?>
+        <div class="description"><?php _e('The main user data field for identifying users.', 'wp_crm'); ?></div>
+      </th>
+      <td>        
+        <select id="wp_crm_primary_user_attribute" name="wp_crm[configuration][primary_user_attribute]">
+          <option value=""> - </option>
+         <?php foreach(apply_filters('wp_crm_primary_user_attribute_keys', $wp_crm['data_structure']['attributes']) as $key => $attribute_data) { ?>          
+            <option value="<?php echo esc_attr($key); ?>" <?php selected($key, $wp_crm['configuration']['primary_user_attribute']); ?>><?php echo $attribute_data['title']; ?> <?php echo ($attribute_data['quick_description'] ? '(' . $attribute_data['quick_description'] . ')' : ''); ?></option>
+        <?php } ?>
+        </select>
+        </ul>
+        </div>
+      </td>
+    </tr>
+    
+    <tr>
+      <th>
         <?php _e('Overview Page User Card','wp_crm'); ?>
-        <span class="description"><?php _e("Information to display in primary user information cell on overview table.", 'wp_crm'); ?></span>
+        <div class="description"><?php _e('User data to be displayed in the <b>Information</b> column.', 'wp_crm'); ?></div>
       </th>
       <td>
         <div class="wp-tab-panel">
@@ -87,7 +125,7 @@ if(empty($wp_crm['data_structure']['attributes'])) {
          <?php foreach(apply_filters('wp_crm_user_card_keys', $wp_crm['data_structure']['attributes']) as $key => $attribute_data): $rand = rand(1000,9999); ?>
           <li>
             <input type="checkbox" value="<?php echo $key; ?>" <?php CRM_UD_UI::checked_in_array($key, $wp_crm['configuration']['overview_table_options']['main_view']); ?> name="wp_crm[configuration][overview_table_options][main_view][]" id="<?php echo $key.$rand; ?>" />
-            <label for="<?php echo $key.$rand; ?>"><?php echo ($attribute_data['title'] ? $attribute_data['title'] : CRM_UD_F::de_slug($key)); ?></label>
+            <label for="<?php echo $key.$rand; ?>"><?php echo ($attribute_data['title'] ? $attribute_data['title'] : CRM_UD_F::de_slug($key)); ?> <?php echo ($attribute_data['quick_description'] ? '<span class="description">' . $attribute_data['quick_description'] . '</span>' : ''); ?></label>
           </li>
         <?php endforeach; ?>
         </ul>
@@ -103,11 +141,37 @@ if(empty($wp_crm['data_structure']['attributes'])) {
       <td>
         <ul>
           <li>
-          <input id="replace_default_user_page" value='true' type="checkbox"  <?php checked($wp_crm['configuration']['replace_default_user_page'], 'true'); ?> name="wp_crm[configuration][replace_default_user_page]" />
-          <label for="replace_default_user_page"><?php _e('Replace default WordPress User page with WP-CRM.'); ?></label>          
+            <input id="replace_default_user_page" value='true' type="checkbox"  <?php checked($wp_crm['configuration']['replace_default_user_page'], 'true'); ?> name="wp_crm[configuration][replace_default_user_page]" />
+            <label for="replace_default_user_page"><?php _e('Replace default WordPress User page with WP-CRM.', 'wp_crm'); ?></label>          
+          </li>
+          
+          <li>
+            <input id="do_not_display_user_avatars" value='true' type="checkbox"  <?php checked($wp_crm['configuration']['do_not_display_user_avatars'], 'true'); ?> name="wp_crm[configuration][do_not_display_user_avatars]" />
+            <label for="do_not_display_user_avatars"><?php _e('Do not display user avatars on overview pages.', 'wp_crm'); ?></label>          
+          </li>         
+
+          <li>
+            <input id="allow_account_creation_with_no_email" value='true' type="checkbox"  <?php checked($wp_crm['configuration']['allow_account_creation_with_no_email'], 'true'); ?> name="wp_crm[configuration][allow_account_creation_with_no_email]" />
+            <label for="allow_account_creation_with_no_email"><?php _e('Allow user accounts to be created without an e-mail address.', 'wp_crm'); ?></label>          
+          </li>
+          
+        </ul>
+      </td>
+      </tr>
+          <tr>
+      <th><?php _e('Email Settings','wp_crm'); ?></th>
+      <td>
+        <ul>
+          <li>
+          <input id="wp_crm_default_email" class="regular-text" type="text" value="<?php echo esc_attr($wp_crm['configuration']['default_sender_email']); ?>" name="wp_crm[configuration][default_sender_email]" />
+          <label for="wp_crm_default_email"><?php _e('Default sender e-mail address.', 'wp_crm'); ?></label>          
+          <div class="description"><?php printf(__('If you are not using SMTP, it is advisable to use a @%s email address to avoid being spammed.', 'wp_crm'), $_SERVER['HTTP_HOST']); ?></div>
           </li>
         </ul>
       </td>
+      </tr>
+      
+      
     </table>
   </div>
 
@@ -119,9 +183,9 @@ if(empty($wp_crm['data_structure']['attributes'])) {
      <table id="wp_crm_notification_messages" class="form-table wp_crm_form_table ud_ui_dynamic_table widefat">
       <thead>
         <tr>
-           <th class="wp_crm_message_header_col"><?php _e('Message Header','wpp') ?></th>
-           <th class="wp_crm_message_col"><?php _e('Message','wpp') ?></th>
-          <th class="wp_crm_settings_col"><?php _e('Trigger Actions','wpp') ?></th>
+           <th class="wp_crm_message_header_col"><?php _e('Message Header','wp_crm') ?></th>
+           <th class="wp_crm_message_col"><?php _e('Message','wp_crm') ?></th>
+          <th class="wp_crm_settings_col"><?php _e('Trigger Actions','wp_crm') ?></th>
           <th class="wp_crm_delete_col">&nbsp;</th>
           </tr>
       </thead>
@@ -146,7 +210,7 @@ if(empty($wp_crm['data_structure']['attributes'])) {
                 <label for=""><?php _e('Send From:', 'wp_crm'); ?></label>
                 <input type="text"  id="send_from_<?php echo $row_hash; ?>"  class="regular-text" name="wp_crm[notifications][<?php echo $notification_slug; ?>][send_from]" value="<?php echo $data['send_from']; ?>"/>
                </li>
-
+
             </ul>
           </td>
           <td>
@@ -171,7 +235,7 @@ if(empty($wp_crm['data_structure']['attributes'])) {
               <p><?php _e('You do not have any notification actions yet. ', 'wp_crm'); ?></p>
             <?php endif; ?>
           </td>
-          <td valign="middle"><span class="wp_crm_delete_row  button"><?php _e('Delete','wpp') ?></span></td>
+          <td valign="middle"><span class="wp_crm_delete_row  button"><?php _e('Delete','wp_crm') ?></span></td>
         </tr>
       </tbody>
       <?php endforeach; ?>
@@ -179,7 +243,7 @@ if(empty($wp_crm['data_structure']['attributes'])) {
       <tfoot>
         <tr>
           <td colspan='4'>
-          <input type="button" class="wp_crm_add_row button-secondary" value="<?php _e('Add Row','wpp') ?>" />
+          <input type="button" class="wp_crm_add_row button-secondary" value="<?php _e('Add Row','wp_crm') ?>" />
           </td>
         </tr>
       </tfoot>
@@ -205,10 +269,10 @@ if(empty($wp_crm['data_structure']['attributes'])) {
       <thead>
         <tr>
           <th class='wp_crm_draggable_handle'>&nbsp;</th>
-          <th class="wp_crm_attribute_col"><?php _e('Attribute','wpp') ?></th>
-          <th class="wp_crm_settings_col"><?php _e('Settings','wpp') ?></th>
-          <th class="wp_crm_type_col"><?php _e('Input Type','wpp') ?></th>
-          <th class="wp_crm_values_col"><?php _e('Predefined Values','wpp') ?></th>
+          <th class="wp_crm_attribute_col"><?php _e('Attribute','wp_crm') ?></th>
+          <th class="wp_crm_settings_col"><?php _e('Settings','wp_crm') ?></th>
+          <th class="wp_crm_type_col"><?php _e('Input Type','wp_crm') ?></th>
+          <th class="wp_crm_values_col"><?php _e('Predefined Values','wp_crm') ?></th>
           <th class="wp_crm_delete_col">&nbsp;</th>
           </tr>
       </thead>
@@ -218,16 +282,28 @@ if(empty($wp_crm['data_structure']['attributes'])) {
         <tr class="wp_crm_dynamic_table_row" slug="<?php echo $slug; ?>"  new_row='false'>
         <th class="wp_crm_draggable_handle">&nbsp;</th>
 
-        <td >
+        <td>
           <ul>
           <li>
-          <label><?php _e('Title'); ?></label>
+          <label><?php _e('Title:'); ?></label>
           <input class="slug_setter" type="text" name="wp_crm[data_structure][attributes][<?php echo $slug; ?>][title]" value="<?php echo $data['title']; ?>" />
+          </li>          
+
+          <li class="wp_crm_advanced_configuration">
+            <label><?php _e('Note:'); ?></label>
+             <input type="text" name="wp_crm[data_structure][attributes][<?php echo $slug; ?>][description]" value="<?php echo $data['description']; ?>" />
           </li>
+
+          
+          <li class="wp_crm_advanced_configuration">
+            <label><?php _e('Slug:'); ?></label>
+            <input type="text" class="slug" readonly='readonly' value="<?php echo $slug; ?>" />
+          </li>
+
           <li>
-          <label><?php _e('Slug'); ?> </label>
-          <input type="text" class="slug" readonly='readonly' value="<?php echo $slug; ?>" />
-          </li>
+            <span class="wp_crm_show_advanced wp_crm_subtle_link"><?php _e('Toggle Advanced'); ?></span>
+          </li>          
+          
           </ul>
         </td>
         <td>
@@ -240,12 +316,24 @@ if(empty($wp_crm['data_structure']['attributes'])) {
             <input  id="<?php echo $row_hash; ?>_overview_column"  value='true' type="checkbox"  <?php checked($wp_crm['data_structure']['attributes'][$slug]['overview_column'], 'true'); ?> name="wp_crm[data_structure][attributes][<?php echo $slug; ?>][overview_column]" />
             <label for="<?php echo $row_hash; ?>_overview_column" ><?php _e('Overview Column', 'wp_crm'); ?></label>
         </li>
+        
+          
+          <li class="wp_crm_advanced_configuration">
+            <input id="<?php echo $row_hash; ?>_required" value='true' type="checkbox"  <?php checked($wp_crm['data_structure']['attributes'][$slug]['required'], 'true'); ?> name="wp_crm[data_structure][attributes][<?php echo $slug; ?>][required]" />
+            <label for="<?php echo $row_hash; ?>_required" ><?php _e('Required', 'wp_crm'); ?></label>
+          </li>        
+                  
+          <li class="wp_crm_advanced_configuration">
+            <input id="<?php echo $row_hash; ?>_no_edit" value='true' type="checkbox"  <?php checked($wp_crm['data_structure']['attributes'][$slug]['uneditable'], 'true'); ?> name="wp_crm[data_structure][attributes][<?php echo $slug; ?>][uneditable]" />
+            <label for="<?php echo $row_hash; ?>_no_edit" ><?php _e('Uneditable', 'wp_crm'); ?></label>
+          </li>        
+        
+        <?php /*
         <li>
             <input  id="<?php echo $row_hash; ?>_allow_multiple"  value='true' type="checkbox"  <?php checked($wp_crm['data_structure']['attributes'][$slug]['allow_multiple'], 'true'); ?> name="wp_crm[data_structure][attributes][<?php echo $slug; ?>][allow_multiple]" />
             <label  for="<?php echo $row_hash; ?>_allow_multiple"  ><?php _e('Allow Multiple', 'wp_crm'); ?></label>
         </li>
         
-        <?php /*
         <li>
             <input  id="<?php echo $row_hash; ?>_autocomplete"  value='true' type="checkbox"  <?php checked($wp_crm['data_structure']['attributes'][$slug]['autocomplete'], 'true'); ?> name="wp_crm[data_structure][attributes][<?php echo $slug; ?>][autocomplete]" />
             <label  for="<?php echo $row_hash; ?>_autocomplete"  ><?php _e('Autocomplete Field', 'wp_crm'); ?></label>
@@ -266,7 +354,7 @@ if(empty($wp_crm['data_structure']['attributes'])) {
           <textarea  name="wp_crm[data_structure][attributes][<?php echo $slug; ?>][options]"><?php echo $wp_crm['data_structure']['attributes'][$slug]['options']; ?></textarea>
         </td>
 
-        <td><span class="wp_crm_delete_row  button"><?php _e('Delete','wpp') ?></span></td>
+        <td><span class="wp_crm_delete_row  button"><?php _e('Delete','wp_crm') ?></span></td>
         </tr>
 
         <?php endforeach; ?>
@@ -275,7 +363,7 @@ if(empty($wp_crm['data_structure']['attributes'])) {
       <tfoot>
         <tr>
           <td colspan='6'>
-          <input type="button" class="wp_crm_add_row button-secondary" value="<?php _e('Add Row','wpp') ?>" />
+          <input type="button" class="wp_crm_add_row button-secondary" value="<?php _e('Add Row','wp_crm') ?>" />
           </td>
         </tr>
       </tfoot>
@@ -303,35 +391,35 @@ if(empty($wp_crm['data_structure']['attributes'])) {
     </tr>
   </thead>
   <tbody>
-  <?php foreach($wp_roles->roles as $role_slug => $role):  $rand_id = rand(1000,9999); ?>
+  <?php if(is_array($wp_roles->roles)) { foreach($wp_roles->roles as $role_slug => $role) {  $rand_id = rand(1000,9999); ?>
    <tr class="wp_crm_dynamic_table_row" slug="<?php echo $role_slug; ?>"  new_row='false'>
 
       <td><?php echo $role['name']; ?></td>
 
         <td >
          <ul class="wp-tab-panel">
-          <?php foreach($wp_crm['data_structure']['attributes'] as $key => $attribute_data): ?>
+          <?php foreach($wp_crm['data_structure']['attributes'] as $key => $attribute_data) { ?>
           <li>
             <input <?php CRM_UD_UI::checked_in_array($key, $wp_crm['hidden_attributes'][$role_slug]); ?> id="<?php echo $key; ?>_<?php echo $rand_id; ?>" type="checkbox" name="wp_crm[hidden_attributes][<?php echo $role_slug; ?>][]" value="<?php echo $key; ?>" />
             <label for="<?php echo $key; ?>_<?php echo $rand_id; ?>"><?php echo $attribute_data['title']; ?></label>
           </li>
-          <?php endforeach; ?>
+          <?php } ?>
           </ul>
         </td>
         <td>
 
           <ul class="wp-tab-panel">
-          <?php foreach($role['capabilities'] as $cap_slug => $cap_setting): ?>
+          <?php foreach($role['capabilities'] as $cap_slug => $cap_setting) { ?>
 
             <li>
             <?php echo $cap_slug; ?>
             </li>
 
-          <?php endforeach; ?>
+          <?php } ?>
           </ul>
         </td>
         </tr>
-   <?php endforeach; ?>
+   <?php } }  ?>
   </tbody>
 </table>
 
@@ -356,20 +444,14 @@ if(empty($wp_crm['data_structure']['attributes'])) {
 
 <?php if(count($wp_crm['available_features']) > 0): ?>
   <div id="tab_plugins">
-
-      <table id="wp_crm_premium_feature_table" cellpadding="0" cellspacing="0">
-        <thead>
-        <tr>
-          <td colspan="2" class="wp_crm_premium_feature_intro">
-              <span class="header"><?php _e('WP-CRM Premium Features','wp_crm') ?></span>
-              <p><?php _e('Premium features will become available shortly, we are still waiting on more feedback on the core of the plugin.','wp_crm') ?></p>
-              <?php /*<p><?php _e('If you're recently purchased a premium feature, <span id="wp_crm_check_premium_updates" class="wp_crm_link">download updates</a>.','wp_crm') ?></p> */ ?>
-              <p id="wp_crm_plugins_ajax_response" class="hidden"></p>
-          </td>
-        </tr>
-        </thead>
+    <div class="wp_crm_inner_tab">
+ 
+      <div class="wp_crm_settings_block wp_crm_main_block">
+        <?php _e('When purchasing the premium features you will need to specify your domain to add the license correctly. <br />This is your domain:','wp_crm'); echo ' <b>'. $this_domain; ?></b>
+      </div>
+      
       <?php foreach($wp_crm['available_features'] as $plugin_slug => $plugin_data): ?>
-
+      <div class="wp_crm_settings_block" style="background-image: url(<?php echo $plugin_data['image']; ?>);">
         <input type="hidden" name="wp_crm[available_features][<?php echo $plugin_slug; ?>][title]" value="<?php echo $plugin_data['title']; ?>" />
         <input type="hidden" name="wp_crm[available_features][<?php echo $plugin_slug; ?>][tagline]" value="<?php echo $plugin_data['tagline']; ?>" />
         <input type="hidden" name="wp_crm[available_features][<?php echo $plugin_slug; ?>][image]" value="<?php echo $plugin_data['image']; ?>" />
@@ -377,44 +459,30 @@ if(empty($wp_crm['data_structure']['attributes'])) {
 
         <?php $installed = (!empty($wp_crm['installed_features'][$plugin_slug]['version']) ? true : false); ?>
         <?php $active = (@$wp_crm['installed_features'][$plugin_slug]['disabled'] != 'false' ? true : false); ?>
-        <tr class="wp_crm_premium_feature_block">
-
-          <td valign="top" class="wp_crm_premium_feature_image">
-            <a href="http://twincitiestech.com/plugins/wp-crm/"><img src="<?php echo $plugin_data['image']; ?>" /></a>
-          </td>
-
-          <td valign="top">
-            <div class="wp_crm_box">
-            <div class="wp_crm_box_header">
-              <strong><?php echo $plugin_data['title']; ?></strong>
-              <p><?php echo $plugin_data['tagline']; ?> <a href="http://twincitiestech.com/plugins/wp-crm/premium/"><?php _e('[learn more]','wp_crm') ?></a>
-              </p>
-            </div>
+        
+          
+            <strong><?php echo $plugin_data['title']; ?></strong>
+            <p><?php echo $plugin_data['tagline']; ?> <a href="http://usabilitydynamics.com/products/wp-crm/premium/"><?php _e('[learn more]','wp_crm') ?></a></p>
+          
             <div class="wp_crm_box_content">
               <p><?php echo $plugin_data['description']; ?></p>
-
             </div>
 
             <div class="wp_crm_box_footer clearfix">
-              <?php if($installed): ?>
-
-                <div class="alignleft">
-                <?php
-                     $disable_text = __('Disable plugin.','wp_crm');
-                     echo CRM_UD_UI::checkbox("name=wp_crm_settings[installed_features][$plugin_slug][disabled]&label=$disable_text", $wp_crm['installed_features'][$plugin_slug]['disabled']); ?>
-                </div>
-
-                <div class="alignright"><?php _e('Feature installed, using version','wp_crm') ?> <?php echo $wp_crm['installed_features'][$plugin_slug]['version']; ?>.</div>
-              <?php else: ?>
-                <?php $pr_link = 'http://twincitiestech.com/plugins/wp-crm/premium/'; echo sprintf(__('Please visit <a href="%s">TwinCitiesTech.com</a> to purchase this feature.','wp_crm'),$pr_link); ?>
-              <?php endif; ?>
-            </div>
-            </div>
-          </td>
-        </tr>
+              <ul>
+              <?php if($installed) { ?>
+                <li><?php echo CRM_UD_UI::checkbox("name=wp_crm_settings[installed_features][$plugin_slug][disabled]&label=" . __('Disable feature.','wp_crm'), $wp_crm['installed_features'][$plugin_slug]['disabled']); ?></li>
+                <li><?php _e('Feature installed, using version','wp_crm') ?> <?php echo $wp_crm['installed_features'][$plugin_slug]['version']; ?>.</li>
+              <?php } else { ?>
+                <li><?php echo sprintf(__('Please visit <a href="%s">UsabilityDynamics.com</a> to purchase this feature.','wp_crm'),'http://usabilitydynamics.com/products/wp-crm/premium/'); ?></li>
+              <?php } ?>
+            </ul>
+          </div>
+        </div>
       <?php endforeach; ?>
-      </table>
+ 
 
+    </div>
   </div>
   <?php endif; ?>
 
@@ -423,19 +491,23 @@ if(empty($wp_crm['data_structure']['attributes'])) {
 
 
       <div class="wp_crm_settings_block">
-        <?php _e('Look up the <b>$wp_crm</b> global settings array.  This array stores all the default settings, which are overwritten by database settings, and custom filters.','wp_crm') ?>
-        <input type="button" value="<?php _e('Show $wp_crm','wpp') ?>" id="wp_crm_show_settings_array"> <span id="wp_crm_show_settings_array_cancel" class="wp_crm_link hidden"><?php _e('Cancel','wpp') ?></span>
+        <?php _e('Force check of allowed premium features.', 'wpp_crm'); ?>
+        <input type="button" id="wp_crm_ajax_check_plugin_updates" value="<?php _e('Check Updates', 'wp_crm'); ?>">
+      </div>
+      
+      <div class="wp_crm_settings_block">
+        <?php _e('Look up the <b>$wp_crm</b> global settings array. This array stores all the default settings, which are overwritten by database settings, and custom filters.','wp_crm') ?>
+        <input type="button" value="<?php _e('Show $wp_crm','wp_crm') ?>" id="wp_crm_show_settings_array"> <span id="wp_crm_show_settings_array_cancel" class="wp_crm_link hidden"><?php _e('Cancel','wp_crm') ?></span>
         <pre id="wp_crm_show_settings_array_result" class="wp_crm_class_pre hidden"><?php print_r($wp_crm); ?></pre>
       </div>
 
 
       <div class="wp_crm_settings_block">
         <?php _e('Show user data structure:','wp_crm') ?>
-        <input type="button" value="<?php _e('Show WP_CRM_F::user_object_structure()','wpp') ?>" id="" class='wp_crm_toggle_something'> <span id="" class="wp_crm_toggle_something wp_crm_link hidden"><?php _e('Cancel','wpp') ?></span>
-        <pre class="wp_crm_class_pre hidden"> All possible meta keys:
+        <input type="button" value="<?php _e('Show WP_CRM_F::user_object_structure()','wp_crm') ?>" id="" class='wp_crm_toggle_something'> <span id="" class="wp_crm_toggle_something wp_crm_link hidden"><?php _e('Cancel','wp_crm') ?></span>
+        <pre class="wp_crm_class_pre hidden"><?php _e('All possible meta keys:'); ?>
           <?php print_r(WP_CRM_F::user_object_structure());?>
-          Root Only:
-          <?php print_r(WP_CRM_F::user_object_structure('root_only=true'));?>
+          <?php _e('Root Only:'); ?><?php print_r(WP_CRM_F::user_object_structure('root_only=true'));?>
 
          </pre>
       </div>
@@ -443,26 +515,27 @@ if(empty($wp_crm['data_structure']['attributes'])) {
       <div class="wp_crm_settings_block">
         <?php _e('Lookup a user object by its ID.','wp_crm') ?>
         <input type="input" value="<?php echo get_current_user_id(); ?>" id="wp_crm_user_id">
-        <input type="button" value="<?php _e('Load User','wpp') ?>" id="wp_crm_show_user_object">
-        <span class="wp_crm_link hidden"><?php _e('Cancel','wpp') ?></span>
+        <input type="button" value="<?php _e('Load User','wp_crm') ?>" id="wp_crm_show_user_object">
+        <span class="wp_crm_link hidden"><?php _e('Cancel','wp_crm') ?></span>
         <pre  class="wp_crm_class_pre hidden"></pre>
       </div>
 
       <div class="wp_crm_settings_block">
         <?php _e('Get user meta report. Will return an array of common meta keys and a few sample values.  This should be used to help you analyze a website with a lot of existing user meta.','wp_crm') ?>
-       <input type="button" value="<?php _e('Get Report','wpp') ?>" id="wp_crm_show_meta_report">
-        <span class="wp_crm_link hidden"><?php _e('Cancel','wpp') ?></span>
+       <input type="button" value="<?php _e('Get Report','wp_crm') ?>" id="wp_crm_show_meta_report">
+        <span class="wp_crm_link hidden"><?php _e('Cancel','wp_crm') ?></span>
         <pre  class="wp_crm_class_pre hidden"></pre>
       </div>
 
       <div class="wp_crm_settings_block">
         <?php _e('Generate ','wp_crm') ?> <input type="input" value="5" id="wp_crm_fake_users"> <?php _e('fake users. ','wp_crm') ?>
-        <input type="button" value="<?php _e('Generate','wpp') ?>" id="wp_crm_generate_fake_users">
+        <input type="button" value="<?php _e('Generate','wp_crm') ?>" id="wp_crm_generate_fake_users">
+        <a href="#" id="wp_crm_delete_fake_users"><?php _e('Delete All Fake Users','wp_crm') ?></a>
        <pre  class="wp_crm_class_pre hidden"></pre>
       </div>
 
       <div class="wp_crm_settings_block">
-        <?php _e("Restore Backup of WP-CRM Configuration", 'wpp'); ?>: <input name="wp_crm[settings_from_backup]" type="file" />
+        <?php _e("Restore Backup of WP-CRM Configuration", 'wp_crm'); ?>: <input name="wp_crm[settings_from_backup]" type="file" />
         <a href="<?php echo wp_nonce_url( "admin.php?page=wp_crm_settings&message=updated&wp_crm_action=download-wp_crm-backup", 'download-wp_crm-backup'); ?>"><?php _e("Download Backup of Current WP-CRM Configuration.");?></a>
       </div>
 
